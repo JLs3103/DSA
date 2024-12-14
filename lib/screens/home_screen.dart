@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../providers/transaction_provider.dart';
-import '../providers/preferences_provider.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -12,14 +11,6 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('DSA Finance Manager'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.dark_mode),
-            onPressed: () {
-              Provider.of<PreferencesProvider>(context, listen: false).toggleDarkMode();
-            },
-          )
-        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -64,7 +55,7 @@ class HomeScreen extends StatelessWidget {
   Widget _buildTotalSpendingCard(BuildContext context) {
     final transactionProvider = Provider.of<TransactionProvider>(context);
     final totalSpending = transactionProvider.getTotalSpending();
-    final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp');
+    final currencyFormat = NumberFormat.currency (locale: 'id_ID', symbol: 'Rp');
 
     return Card(
       elevation: 4,
@@ -81,9 +72,9 @@ class HomeScreen extends StatelessWidget {
             Text(
               currencyFormat.format(totalSpending),
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
- color: Theme.of(context).primaryColor,
-                    fontWeight: FontWeight.bold,
-                  ),
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ],
         ),

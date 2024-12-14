@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 class PreferencesNode {
   String key;
   String value;
@@ -38,19 +36,5 @@ class PreferencesBST {
     return key.compareTo(root.key) < 0
         ? _searchRec(root.left, key)
         : _searchRec(root.right, key);
-  }
-}
-
-class PreferencesProvider with ChangeNotifier {
-  final PreferencesBST _preferences = PreferencesBST();
-
-  bool get isDarkMode {
-    return _preferences.search('isDarkMode') == 'true';
-  }
-
-  void toggleDarkMode() {
-    String currentValue = isDarkMode ? 'true' : 'false';
-    _preferences.insert('isDarkMode', currentValue == 'true' ? 'false' : 'true');
-    notifyListeners();
   }
 }

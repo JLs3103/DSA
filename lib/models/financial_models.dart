@@ -1,4 +1,4 @@
-  import 'package:hive/hive.dart';
+import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 part 'financial_models.g.dart';
@@ -123,7 +123,7 @@ class BudgetModel {
     List<TransactionModel>? transactions
   }) : transactions = transactions ?? [];
 
-  // Segment Tree concept for budget analysis
+  // Calculate total spending for a given period
   double calculateTotalSpending(DateTime startDate, DateTime endDate) {
     return transactions
         .where((t) => 
@@ -159,7 +159,7 @@ class ExpenseGraph {
     print(category); // Atau lakukan analisis lebih lanjut
 
     for (var neighbor in getConnections(category)) {
-      dfs(neighbor , visited);
+      dfs(neighbor, visited);
     }
   }
 }

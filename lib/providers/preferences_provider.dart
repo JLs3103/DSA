@@ -45,12 +45,10 @@ class PreferencesProvider with ChangeNotifier {
   final PreferencesBST _preferences = PreferencesBST();
 
   bool get isDarkMode {
-    // Mengembalikan nilai dari preferensi, default ke false jika tidak ditemukan
     return _preferences.search('isDarkMode') == 'true';
   }
 
   void toggleDarkMode() {
-    // Mengubah nilai preferensi dan memberitahu pendengar
     String currentValue = isDarkMode ? 'true' : 'false';
     _preferences.insert('isDarkMode', currentValue == 'true' ? 'false' : 'true');
     notifyListeners();

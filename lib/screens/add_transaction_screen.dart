@@ -12,15 +12,21 @@ class AddTransactionScreen extends StatefulWidget {
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _categories = [
-    'Makan', 'Transportasi', 'Belanja', 
-    'Hiburan', 'Pendidikan', 'Kesehatan'
+  final _expenseCategories = [
+    'Food', 'Transportation', 'Shopping', 
+    'Entertainment', 'Education', 'Health'
+  ];
+  
+  final _incomeCategories = [
+    'Salary', 'Business', 'Investment', 
+    'Gift', 'Freelance', 'Other'
   ];
 
-  String _selectedCategory = 'Makan';
+  String _selectedCategory = 'Food';
   double _amount = 0.0;
   String _description = '';
   DateTime _selectedDate = DateTime.now();
+  String _transactionType = 'Expense'; // Default to Expense
 
   @override
   Widget build(BuildContext context) {
@@ -36,18 +42,53 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // Transaction Type Selection
+                Text('Transaction Type', style: Theme.of(context).textTheme.headlineMedium),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Radio<String>(
+                      value: 'Expense',
+                      groupValue: _transactionType,
+                      onChanged: (value) {
+                        setState(() {
+                          _transactionType = value!;
+                          _selectedCategory = _expenseCategories[0]; // Reset to first category
+                        });
+                      },
+                    ),
+                    Text('Expense'),
+                    Radio<String>(
+                      value: 'Income',
+                      groupValue: _transactionType,
+                      onChanged: (value) {
+                        setState(() {
+                          _transactionType = value!;
+                          _selectedCategory = _incomeCategories[0]; // Reset to first category
+                        });
+                      },
+                    ),
+                    Text('Income'),
+                  ],
+                ),
+                SizedBox(height: 16),
+
+                // Category Selection
                 DropdownButtonFormField<String>(
-                  value: _selectedCategory,
+                  value: _transactionType == 'Expense' ? _selectedCategory : _incomeCategories[0],
                   decoration: InputDecoration(
-                    labelText: 'Kategori',
+                    labelText: 'Category',
                     border: OutlineInputBorder(),
                   ),
-                  items: _categories
-                      .map((category) => DropdownMenuItem(
+                  items: _transactionType == 'Expense'
+                      ? _expenseCategories.map((category) => DropdownMenuItem(
                             value: category,
                             child: Text(category),
-                          ))
-                      .toList(),
+                          )).toList()
+                      : _incomeCategories.map((category) => DropdownMenuItem(
+                            value: category,
+                            child: Text(category),
+                          )).toList(),
                   onChanged: (value) {
                     setState(() {
                       _selectedCategory = value!;
@@ -55,20 +96,22 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   },
                 ),
                 SizedBox(height: 16),
+
+                // Amount Input
                 TextFormField(
                   decoration: InputDecoration(
-                    labelText: 'Jumlah',
+                    labelText: 'Amount',
                     prefixText: 'Rp ',
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Masukkan jumlah';
+                      return 'Please enter an amount';
                     }
                     final amount = double.tryParse(value);
                     if (amount == null || amount <= 0) {
-                      return 'Jumlah harus lebih besar dari nol';
+                      return 'Amount must be greater than zero';
                     }
                     return null;
                   },
@@ -77,9 +120,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   },
                 ),
                 SizedBox(height: 16),
+
+                // Description Input
                 TextFormField(
                   decoration: InputDecoration(
-                    labelText: 'Deskripsi (Opsional)',
+                    labelText: 'Description (Optional)',
                     border: OutlineInputBorder(),
                   ),
                   onSaved: (value) {
@@ -87,27 +132,31 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
                   },
                 ),
                 SizedBox(height: 16),
+
+                // Date Selection
                 Row(
                   children: [
                     Expanded(
                       child: Text(
-                        'Tanggal: ${DateFormat('dd MMM yyyy').format(_selectedDate)}',
-                        style: Theme.of(context).textTheme.titleMedium,
+                        'Date: ${DateFormat('dd MMM yyyy').format(_selectedDate)}',
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                     ElevatedButton(
                       onPressed: _pickDate,
-                      child: Text('Pilih Tanggal'),
+                      child: Text('Select Date'),
                     ),
                   ],
                 ),
-                SizedBox(height: 24),
+ SizedBox(height: 24),
+
+                // Submit Button
                 ElevatedButton(
                   onPressed: _submitTransaction,
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text('Simpan Transaksi'),
+                  child: Text('Save Transaction'),
                 ),
               ],
             ),
@@ -122,7 +171,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)), // Allow future dates
     );
 
     if (pickedDate != null && pickedDate != _selectedDate) {
@@ -149,7 +198,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Transaksi berhasil ditambahkan'),
+            content: Text('Transaction added successfully'),
             backgroundColor: Colors.green,
           ),
         );
@@ -158,7 +207,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal menambahkan transaksi: ${e.toString()}'),
+            content: Text('Failed to add transaction: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );

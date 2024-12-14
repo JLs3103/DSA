@@ -1,35 +1,58 @@
-import 'package:flutter/foundation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
 
-class PreferencesProvider extends ChangeNotifier {
-  bool _isDarkMode = false;
-  String _defaultCurrency = 'IDR';
+class PreferencesNode {
+  String key;
+  String value;
+  PreferencesNode? left;
+  PreferencesNode? right;
 
-  bool get isDarkMode => _isDarkMode;
-  String get defaultCurrency => _defaultCurrency;
+  PreferencesNode(this.key, this.value);
+}
 
-  PreferencesProvider() {
-    _loadPreferences();
+class PreferencesBST {
+  PreferencesNode? root;
+
+  void insert(String key, String value) {
+    root = _insertRec(root, key, value);
   }
 
-  Future<void> _loadPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
-    _isDarkMode = prefs.getBool('darkMode') ?? false;
-    _defaultCurrency = prefs.getString('currency') ?? 'IDR';
-    notifyListeners();
+  PreferencesNode? _insertRec(PreferencesNode? root, String key, String value) {
+    if (root == null) {
+      return PreferencesNode(key, value);
+    }
+    if (key.compareTo(root.key) < 0) {
+      root.left = _insertRec(root.left, key, value);
+    } else if (key.compareTo(root.key) > 0) {
+      root.right = _insertRec(root.right, key, value);
+    }
+    return root;
   }
 
-  void toggleDarkMode() async {
-    _isDarkMode = !_isDarkMode;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('darkMode', _isDarkMode);
-    notifyListeners();
+  String? search(String key) {
+    return _searchRec(root, key);
   }
 
-  void setCurrency(String currency) async {
-    _defaultCurrency = currency;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('currency', currency);
+  String? _searchRec(PreferencesNode? root, String key) {
+    if (root == null) return null;
+    if (key == root.key) return root.value;
+    return key.compareTo(root.key) < 0
+        ? _searchRec(root.left, key)
+        : _searchRec(root.right, key);
+  }
+}
+
+class PreferencesProvider with ChangeNotifier {
+  final PreferencesBST _preferences = PreferencesBST();
+
+  bool get isDarkMode {
+    // Mengembalikan nilai dari preferensi, default ke false jika tidak ditemukan
+    return _preferences.search('isDarkMode') == 'true';
+  }
+
+  void toggleDarkMode() {
+    // Mengubah nilai preferensi dan memberitahu pendengar
+    String currentValue = isDarkMode ? 'true' : 'false';
+    _preferences.insert('isDarkMode', currentValue == 'true' ? 'false' : 'true');
     notifyListeners();
   }
 }

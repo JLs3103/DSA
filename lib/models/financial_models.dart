@@ -1,7 +1,41 @@
-import 'package:hive/hive.dart';
+  import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
 
 part 'financial_models.g.dart';
+
+class TransactionNode {
+  TransactionModel transaction;
+  TransactionNode? next;
+
+  TransactionNode(this.transaction);
+}
+
+class TransactionLinkedList {
+  TransactionNode? head;
+
+  void add(TransactionModel transaction) {
+    final newNode = TransactionNode(transaction);
+    if (head == null) {
+      head = newNode;
+    } else {
+      TransactionNode current = head!;
+      while (current.next != null) {
+        current = current.next!;
+      }
+      current.next = newNode;
+    }
+  }
+
+  List<TransactionModel> toList() {
+    List<TransactionModel> transactions = [];
+    TransactionNode? current = head;
+    while (current != null) {
+      transactions.add(current.transaction);
+      current = current.next;
+    }
+    return transactions;
+  }
+}
 
 @HiveType(typeId: 0)
 class TransactionModel {
@@ -42,6 +76,36 @@ class TransactionModel {
   }
 }
 
+// Merge Sort for sorting transactions
+List<TransactionModel> mergeSort(List<TransactionModel> transactions) {
+  if (transactions.length <= 1) return transactions;
+
+  final mid = transactions.length ~/ 2;
+  final left = mergeSort(transactions.sublist(0, mid));
+  final right = mergeSort(transactions.sublist(mid));
+
+  return merge(left, right);
+}
+
+List<TransactionModel> merge(List<TransactionModel> left, List<TransactionModel> right) {
+  List<TransactionModel> result = [];
+  int i = 0, j = 0;
+
+  while (i < left.length && j < right.length) {
+    if (left[i].date.isBefore(right[j].date)) {
+      result.add(left[i]);
+      i++;
+    } else {
+      result.add(right[j]);
+      j++;
+    }
+  }
+
+  result.addAll(left.sublist(i));
+  result.addAll(right.sublist(j));
+  return result;
+}
+
 @HiveType(typeId: 1)
 class BudgetModel {
   @HiveField(0)
@@ -77,25 +141,25 @@ class BudgetModel {
   }
 }
 
-class ExpenseCategoryGraph {
-  Map<String, Map<String, double>> categoryConnections = {
-    'Food': {'Transportation': 0.3, 'Shopping': 0.2},
-    'Transportation': {'Food': 0.4, 'Online Shopping': 0.1},
-    'Online Shopping': {'Transportation': 0.2, 'Food': 0.1}
-  };
+class ExpenseGraph {
+  final Map<String, List<String>> _connections = {};
 
-  // Greedy algorithm for cost reduction recommendations
-  List<String> findCostReductionAreas(List<TransactionModel> transactions) {
-    final categorySpending = <String, double>{};
-    
-    for (var transaction in transactions) {
-      categorySpending[transaction.category] = 
-        (categorySpending[transaction.category] ?? 0) + transaction.amount;
+  void addConnection(String category1, String category2) {
+    _connections.putIfAbsent(category1, () => []).add(category2);
+    _connections.putIfAbsent(category2, () => []).add(category1);
+  }
+
+  List<String> getConnections(String category) {
+    return _connections[category] ?? [];
+  }
+
+  void dfs(String category, Set<String> visited) {
+    if (visited.contains(category)) return;
+    visited.add(category);
+    print(category); // Atau lakukan analisis lebih lanjut
+
+    for (var neighbor in getConnections(category)) {
+      dfs(neighbor , visited);
     }
-
-    final sortedCategories = categorySpending.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
-    return sortedCategories.map((e) => e.key).take(2).toList();
   }
 }

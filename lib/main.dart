@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
 import 'providers/transaction_provider.dart';
-import 'providers/preferences_provider.dart';
+import 'providers/preferences_provider.dart'; // Pastikan ini diimpor
 import 'screens/home_screen.dart';
 import 'screens/add_transaction_screen.dart';
 import 'screens/budget_screen.dart';
@@ -19,7 +19,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => TransactionProvider()),
-        ChangeNotifierProvider(create: (_) => PreferencesProvider()),
+        ChangeNotifierProvider(create: (_) => PreferencesProvider()), // Pastikan ini didefinisikan
       ],
       child: DSAFinanceApp(),
     )

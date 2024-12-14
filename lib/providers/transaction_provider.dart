@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import '../models/financial_models.dart';
+import '../models/expense_analysis.dart'; // Pastikan ini diimpor
 
 class TransactionProvider extends ChangeNotifier {
   final List<TransactionModel> _transactions = [];
@@ -45,7 +46,7 @@ class TransactionProvider extends ChangeNotifier {
   }
 
   List<String> getRecommendedReductionAreas() {
-    final graph = ExpenseCategoryGraph();
+    final graph = ExpenseCategoryGraph(); // Pastikan kelas ini didefinisikan
     return graph.findCostReductionAreas(_transactions);
   }
 
